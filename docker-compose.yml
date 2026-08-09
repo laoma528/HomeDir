@@ -1,8 +1,36 @@
+# HomeDir 部署速查
+#
+#   首次部署 / 代码更新后重新构建并启动：
+#     docker compose up -d --build
+#
+#   仅启动（不重新构建）：
+#     docker compose up -d
+#
+#   查看运行状态与日志：
+#     docker compose ps
+#     docker compose logs -f
+#
+#   重启 / 停止 / 停止并删除容器（数据保留在 ./data）：
+#     docker compose restart
+#     docker compose stop
+#     docker compose down
+#
+#   备份数据（含 SQLite 库与上传的图标）：
+#     cp -r data data.bak
+#
+# 访问地址：http://<服务器IP>:4027   后台：http://<服务器IP>:4027/dash
+
 services:
   homedir:
-    image: 52lxcloud/homedir:latest
-    container_name: homedir
+    # 从本地源码构建（含自定义改动）；如需回退官方镜像，改回 image: 52lxcloud/homedir:latest
+    build:
+      context: .
+    image: homedir:local
+    container_name: homedir-zhuijume
     restart: unless-stopped
+    environment:
+      # 上海时区（需镜像内含 tzdata，见 Dockerfile）
+      TZ: Asia/Shanghai
     ports:
       - "4027:4027"
     volumes:

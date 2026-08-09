@@ -1,7 +1,8 @@
 import { Terminal } from "lucide-react";
-import { GithubIcon } from "@/components/icons/github";
 import { getSites } from "@/lib/sites";
+import { getIconUrl } from "@/lib/icons";
 import { HomePage } from "@/components/home-page";
+import { SocialLinks } from "@/components/social-links";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,14 @@ export default async function Page() {
     <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 pt-8 sm:px-6 lg:px-8">
       {/* 标题 — Server Component，0 JS */}
       <header className="mb-8 flex items-center gap-2.5">
-        <Terminal className="size-5" />
+        {config.site_logo ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={getIconUrl(config.site_logo)} alt="" className="size-5 shrink-0 rounded object-contain" />
+        ) : (
+          <Terminal className="size-5" />
+        )}
         <span className="flex-1 text-sm font-semibold tracking-tight">{config.site_name}</span>
-        <a href="https://github.com/52Lxcloud/HomeDir" target="_blank" rel="noopener noreferrer" className="text-muted-foreground/50 transition-colors hover:text-muted-foreground">
-          <GithubIcon className="size-4" />
-        </a>
+        <SocialLinks value={config.social_links} />
       </header>
 
       {/* 交互区域 — Client Component */}

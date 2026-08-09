@@ -3,6 +3,7 @@ import { GeistMono } from "geist/font/mono";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { getConfig } from "@/lib/db";
+import { getIconUrl } from "@/lib/icons";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,6 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s - ${config.site_name}`,
     },
     description: config.site_description,
+    // 留空时回落到 public/icon.svg（内置默认图标）
+    icons: { icon: config.site_icon ? getIconUrl(config.site_icon) : "/icon.svg" },
   };
 }
 

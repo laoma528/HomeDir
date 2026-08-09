@@ -2,6 +2,8 @@ FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+# Alpine 基于 musl，默认无时区数据库；不装 tzdata 则 TZ 变量无效（始终 UTC）
+RUN apk add --no-cache tzdata
 
 FROM base AS deps
 WORKDIR /app
@@ -21,6 +23,7 @@ ENV HOSTNAME="0.0.0.0"
 ENV PORT=4027
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 RUN mkdir -p /app/data/icons
 EXPOSE 4027
 CMD ["node", "server.js"]

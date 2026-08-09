@@ -27,6 +27,9 @@ export default async function AdminPage() {
     site_description: config.site_description,
     footer_text: config.footer_text,
     auto_detect_network: config.auto_detect_network,
+    social_links: config.social_links,
+    site_logo: config.site_logo,
+    site_icon: config.site_icon,
   };
 
   return (

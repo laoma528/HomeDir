@@ -15,6 +15,13 @@ import {
 } from "@/lib/db";
 import type { SiteConfig } from "@/lib/db";
 import { saveIcon } from "@/lib/icons-fs";
+import {
+  MAX_SOCIAL_LINKS,
+  getPlatform,
+  isSafeUrl,
+  serializeSocialLinks,
+  type SocialLink,
+} from "@/lib/social";
 
 interface SiteFormInput {
   name: string;
@@ -237,6 +244,37 @@ export async function deleteShortcutAction(id: string): Promise<ActionResult> {
   } catch (e) {
     console.error("删除热键失败:", e);
     return { success: false, error: "删除热键失败" };
+  }
+}
+
+// 社交名片操作
+export async function updateSocialLinksAction(links: SocialLink[]): Promise<ActionResult> {
+  const authErr = await requireAuth();
+  if (authErr) return authErr;
+
+  if (!Array.isArray(links)) return { success: false, error: "数据格式错误" };
+  if (links.length > MAX_SOCIAL_LINKS) return { success: false, error: `最多添加 ${MAX_SOCIAL_LINKS} 个链接` };
+
+  const cleaned: SocialLink[] = [];
+  for (const link of links) {
+    if (!getPlatform(link.platform)) return { success: false, error: "不支持的平台" };
+    const url = (link.url || "").trim();
+    if (!url) return { success: false, error: "地址不能为空" };
+    if (!isSafeUrl(url)) return { success: false, error: "地址需以 http/https/mailto 开头" };
+    if (url.length > 500) return { success: false, error: "地址过长" };
+    const label = (link.label || "").trim();
+    if (label.length > 30) return { success: false, error: "备注不能超过 30 个字符" };
+    cleaned.push({ id: link.id, platform: link.platform, url, label: label || undefined });
+  }
+
+  try {
+    updateConfig({ social_links: serializeSocialLinks(cleaned) });
+    revalidatePath("/");
+    revalidatePath("/dash");
+    return { success: true };
+  } catch (e) {
+    console.error("保存社交名片失败:", e);
+    return { success: false, error: "保存社交名片失败" };
   }
 }
 

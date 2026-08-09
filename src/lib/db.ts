@@ -116,6 +116,12 @@ export interface SiteConfig {
   site_description: string;
   footer_text: string;
   auto_detect_network: string;
+  /** 社交名片链接，JSON 数组字符串，见 lib/social.ts */
+  social_links: string;
+  /** 站点 logo — data/icons/ 下的文件名，留空则用 Terminal 图标 */
+  site_logo: string;
+  /** 浏览器标签页图标 — data/icons/ 下的文件名，留空则用 Next 默认 favicon */
+  site_icon: string;
   admin_password: string;
   admin_session: string;
 }
@@ -125,6 +131,9 @@ const defaultConfig: SiteConfig = {
   site_description: "快速访问内外网服务的导航中心",
   footer_text: "© 2026 Lxcloud · Powered by <a href=\"https://github.com/52Lxcloud/HomeDir\">HomeDir</a>",
   auto_detect_network: "false",
+  social_links: "[]",
+  site_logo: "",
+  site_icon: "",
   admin_password: "",
   admin_session: "",
 };
@@ -138,6 +147,9 @@ export function getConfig(): SiteConfig {
     site_description: map.get("site_description") || defaultConfig.site_description,
     footer_text: map.get("footer_text") || defaultConfig.footer_text,
     auto_detect_network: map.get("auto_detect_network") ?? defaultConfig.auto_detect_network,
+    social_links: map.get("social_links") ?? defaultConfig.social_links,
+    site_logo: map.get("site_logo") ?? defaultConfig.site_logo,
+    site_icon: map.get("site_icon") ?? defaultConfig.site_icon,
     admin_password: map.get("admin_password") || "",
     admin_session: map.get("admin_session") || "",
   };
