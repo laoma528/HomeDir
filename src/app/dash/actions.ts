@@ -8,6 +8,7 @@ import {
   deleteSite,
   renameCategory,
   deleteCategory,
+  getConfig,
   updateConfig,
   createShortcut,
   deleteShortcut,
@@ -22,6 +23,11 @@ import {
   serializeSocialLinks,
   type SocialLink,
 } from "@/lib/social";
+import {
+  renameInCategoryOrder,
+  removeFromCategoryOrder,
+  serializeCategoryOrder,
+} from "@/lib/categories";
 
 interface SiteFormInput {
   name: string;
@@ -111,7 +117,11 @@ export async function renameCategoryAction(oldName: string, newName: string): Pr
   if (oldName === newName) return { success: true };
 
   try {
-    renameCategory(oldName, newName.trim());
+    const trimmed = newName.trim();
+    renameCategory(oldName, trimmed);
+    updateConfig({
+      category_order: renameInCategoryOrder(getConfig().category_order, oldName, trimmed),
+    });
     revalidatePath("/");
     revalidatePath("/dash");
     return { success: true };
@@ -128,12 +138,34 @@ export async function deleteCategoryAction(name: string): Promise<ActionResult> 
 
   try {
     deleteCategory(name);
+    updateConfig({
+      category_order: removeFromCategoryOrder(getConfig().category_order, name),
+    });
     revalidatePath("/");
     revalidatePath("/dash");
     return { success: true };
   } catch (e) {
     console.error("删除分类失败:", e);
     return { success: false, error: "删除分类失败" };
+  }
+}
+
+export async function updateCategoryOrderAction(order: string[]): Promise<ActionResult> {
+  const authErr = await requireAuth();
+  if (authErr) return authErr;
+  if (!Array.isArray(order)) return { success: false, error: "排序数据格式错误" };
+
+  try {
+    const cleaned = order
+      .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
+      .map((name) => name.trim());
+    updateConfig({ category_order: serializeCategoryOrder(cleaned) });
+    revalidatePath("/");
+    revalidatePath("/dash");
+    return { success: true };
+  } catch (e) {
+    console.error("保存分类顺序失败:", e);
+    return { success: false, error: "保存分类顺序失败" };
   }
 }
 

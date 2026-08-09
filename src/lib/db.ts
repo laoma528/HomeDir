@@ -118,6 +118,8 @@ export interface SiteConfig {
   auto_detect_network: string;
   /** 社交名片链接，JSON 数组字符串，见 lib/social.ts */
   social_links: string;
+  /** 首页分类顺序，JSON 名称数组字符串，见 lib/categories.ts */
+  category_order: string;
   /** 站点 logo — data/icons/ 下的文件名，留空则用 Terminal 图标 */
   site_logo: string;
   /** 浏览器标签页图标 — data/icons/ 下的文件名，留空则用 Next 默认 favicon */
@@ -132,6 +134,7 @@ const defaultConfig: SiteConfig = {
   footer_text: "© 2026 Lxcloud · Powered by <a href=\"https://github.com/52Lxcloud/HomeDir\">HomeDir</a>",
   auto_detect_network: "false",
   social_links: "[]",
+  category_order: "[]",
   site_logo: "",
   site_icon: "",
   admin_password: "",
@@ -148,6 +151,7 @@ export function getConfig(): SiteConfig {
     footer_text: map.get("footer_text") || defaultConfig.footer_text,
     auto_detect_network: map.get("auto_detect_network") ?? defaultConfig.auto_detect_network,
     social_links: map.get("social_links") ?? defaultConfig.social_links,
+    category_order: map.get("category_order") ?? defaultConfig.category_order,
     site_logo: map.get("site_logo") ?? defaultConfig.site_logo,
     site_icon: map.get("site_icon") ?? defaultConfig.site_icon,
     admin_password: map.get("admin_password") || "",
