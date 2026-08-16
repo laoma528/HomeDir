@@ -18,7 +18,7 @@ export function FooterSections({ friendLinks, sponsors }: { friendLinks: string;
                 key={link.id}
                 href={link.url}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
                 title={link.desc || link.name}
                 className="text-[11px] text-muted-foreground/60 transition-colors hover:text-foreground"
               >
@@ -38,7 +38,7 @@ export function FooterSections({ friendLinks, sponsors }: { friendLinks: string;
                 key={item.id}
                 href={item.url}
                 target="_blank"
-                rel="noopener noreferrer sponsored"
+                rel="noopener sponsored"
                 title={item.name}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}

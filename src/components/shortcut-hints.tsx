@@ -29,7 +29,7 @@ export function ShortcutHints({
 
     for (const sc of shortcutConfigs) {
       const site = sites.find((s) => s.id === sc.site_id);
-      if (site) list.push({ key: sc.key, label: site.name, run: () => window.open(getUrl(site), "_blank") });
+      if (site) list.push({ key: sc.key, label: site.name, run: () => window.open(getUrl(site), "_blank", "noopener") });
     }
 
     return list;

@@ -49,7 +49,7 @@ export function SearchDialog({
   const handleSelect = useCallback(
     (site: SiteData) => {
       const url = (isInternal ? site.url.internal : site.url.external) || site.url.internal || site.url.external;
-      window.open(url, "_blank", "noopener,noreferrer");
+      window.open(url, "_blank", "noopener");
       onOpenChange(false);
     },
     [isInternal, onOpenChange]

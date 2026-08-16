@@ -15,7 +15,7 @@ export function SocialLinks({ value }: { value: string }) {
             key={link.id}
             href={link.url}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             title={label}
             aria-label={label}
             className="text-muted-foreground/50 transition-colors hover:text-muted-foreground"

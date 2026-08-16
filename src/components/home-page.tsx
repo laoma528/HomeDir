@@ -239,7 +239,7 @@ export function HomePage({
                 key={site.id}
                 href={url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener"
                 className="group flex items-center gap-2.5 rounded-xl border bg-card p-3 shadow-sm transition-all hover:border-foreground/15 hover:bg-accent/50 hover:shadow-md sm:gap-3.5 sm:p-4"
               >
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted transition-colors sm:size-10 sm:rounded-xl">
