@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(mkdir -p /tmp/claude-501/-Users-dev-Code-projects/2089b8c1-7a28-45b9-bede-899c2b24d761/scratchpad)"
+    ]
+  }
+}
