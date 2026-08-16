@@ -1,7 +1,17 @@
 # HomeDir 部署速查
 #
-#   首次部署 / 代码更新后重新构建并启动：
+#   改完代码后重新构建并启动（最常用，首次部署也用它）：
 #     docker compose up -d --build
+#
+#   构建没吃到改动 / 缓存出问题时，强制不用缓存完整重建：
+#     docker compose build --no-cache
+#     docker compose up -d
+#
+#   重建后清理被替换下来的悬空旧镜像（可选，回收磁盘）：
+#     docker image prune -f
+#
+#   只看这次构建过程（构建失败时排查用，不加 -d 保持前台输出）：
+#     docker compose up --build
 #
 #   仅启动（不重新构建）：
 #     docker compose up -d
@@ -18,7 +28,7 @@
 #   备份数据（含 SQLite 库与上传的图标）：
 #     cp -r data data.bak
 #
-# 访问地址：http://<服务器IP>:4027   后台：http://<服务器IP>:4027/dash
+# 访问地址：http://<服务器IP>:4027   后台：http://<服务器IP>:4027/admin
 
 services:
   homedir:

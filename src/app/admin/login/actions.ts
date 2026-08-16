@@ -15,7 +15,7 @@ export async function setupAction(_: Result, formData: FormData): Promise<Result
 
   setPassword(password);
   await login(password);
-  redirect("/dash");
+  redirect("/admin");
 }
 
 export async function loginAction(_: Result, formData: FormData): Promise<Result> {
@@ -24,10 +24,10 @@ export async function loginAction(_: Result, formData: FormData): Promise<Result
 
   const ok = await login(password);
   if (!ok) return { error: "密码错误" };
-  redirect("/dash");
+  redirect("/admin");
 }
 
 export async function logoutAction(): Promise<void> {
   await logout();
-  redirect("/dash/login");
+  redirect("/admin/login");
 }

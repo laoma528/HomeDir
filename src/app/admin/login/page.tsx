@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   // 已登录则跳转
-  if (await isAuthenticated()) redirect("/dash");
+  if (await isAuthenticated()) redirect("/admin");
 
   const needSetup = !hasPassword();
 

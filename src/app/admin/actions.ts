@@ -24,6 +24,15 @@ import {
   type SocialLink,
 } from "@/lib/social";
 import {
+  MAX_FRIEND_LINKS,
+  MAX_SPONSORS,
+  isIconFilename,
+  serializeFriendLinks,
+  serializeSponsors,
+  type FriendLink,
+  type Sponsor,
+} from "@/lib/footer-links";
+import {
   renameInCategoryOrder,
   removeFromCategoryOrder,
   serializeCategoryOrder,
@@ -64,7 +73,7 @@ export async function createSiteAction(formData: SiteFormInput): Promise<ActionR
   try {
     createSite(formData);
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("创建站点失败:", e);
@@ -84,7 +93,7 @@ export async function updateSiteAction(id: string, formData: SiteFormInput): Pro
     const result = updateSite(id, formData);
     if (!result) return { success: false, error: "站点不存在" };
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("更新站点失败:", e);
@@ -101,7 +110,7 @@ export async function deleteSiteAction(id: string): Promise<ActionResult> {
     const ok = deleteSite(id);
     if (!ok) return { success: false, error: "站点不存在" };
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("删除站点失败:", e);
@@ -123,7 +132,7 @@ export async function renameCategoryAction(oldName: string, newName: string): Pr
       category_order: renameInCategoryOrder(getConfig().category_order, oldName, trimmed),
     });
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("重命名分类失败:", e);
@@ -142,7 +151,7 @@ export async function deleteCategoryAction(name: string): Promise<ActionResult> 
       category_order: removeFromCategoryOrder(getConfig().category_order, name),
     });
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("删除分类失败:", e);
@@ -161,7 +170,7 @@ export async function updateCategoryOrderAction(order: string[]): Promise<Action
       .map((name) => name.trim());
     updateConfig({ category_order: serializeCategoryOrder(cleaned) });
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("保存分类顺序失败:", e);
@@ -256,7 +265,7 @@ export async function createShortcutAction(key: string, siteId: string): Promise
   try {
     createShortcut(key.trim(), siteId);
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("创建热键失败:", e);
@@ -271,7 +280,7 @@ export async function deleteShortcutAction(id: string): Promise<ActionResult> {
   try {
     deleteShortcut(id);
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("删除热键失败:", e);
@@ -302,11 +311,78 @@ export async function updateSocialLinksAction(links: SocialLink[]): Promise<Acti
   try {
     updateConfig({ social_links: serializeSocialLinks(cleaned) });
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("保存社交名片失败:", e);
     return { success: false, error: "保存社交名片失败" };
+  }
+}
+
+// 页脚友情链接
+export async function updateFriendLinksAction(links: FriendLink[]): Promise<ActionResult> {
+  const authErr = await requireAuth();
+  if (authErr) return authErr;
+
+  if (!Array.isArray(links)) return { success: false, error: "数据格式错误" };
+  if (links.length > MAX_FRIEND_LINKS) return { success: false, error: `最多添加 ${MAX_FRIEND_LINKS} 个友链` };
+
+  const cleaned: FriendLink[] = [];
+  for (const link of links) {
+    const name = (link.name || "").trim();
+    if (!name) return { success: false, error: "站点名称不能为空" };
+    if (name.length > 50) return { success: false, error: "站点名称不能超过 50 个字符" };
+    const url = (link.url || "").trim();
+    if (!url) return { success: false, error: "地址不能为空" };
+    if (!isSafeUrl(url)) return { success: false, error: "地址需以 http/https 开头" };
+    if (url.length > 500) return { success: false, error: "地址过长" };
+    const desc = (link.desc || "").trim();
+    if (desc.length > 50) return { success: false, error: "描述不能超过 50 个字符" };
+    cleaned.push({ id: link.id, name, url, desc: desc || undefined });
+  }
+
+  try {
+    updateConfig({ friend_links: serializeFriendLinks(cleaned) });
+    revalidatePath("/");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (e) {
+    console.error("保存友情链接失败:", e);
+    return { success: false, error: "保存友情链接失败" };
+  }
+}
+
+// 页脚赞助商
+export async function updateSponsorsAction(items: Sponsor[]): Promise<ActionResult> {
+  const authErr = await requireAuth();
+  if (authErr) return authErr;
+
+  if (!Array.isArray(items)) return { success: false, error: "数据格式错误" };
+  if (items.length > MAX_SPONSORS) return { success: false, error: `最多添加 ${MAX_SPONSORS} 个赞助商` };
+
+  const cleaned: Sponsor[] = [];
+  for (const item of items) {
+    const name = (item.name || "").trim();
+    if (!name) return { success: false, error: "赞助商名称不能为空" };
+    if (name.length > 50) return { success: false, error: "赞助商名称不能超过 50 个字符" };
+    const url = (item.url || "").trim();
+    if (!url) return { success: false, error: "地址不能为空" };
+    if (!isSafeUrl(url)) return { success: false, error: "地址需以 http/https 开头" };
+    if (url.length > 500) return { success: false, error: "地址过长" };
+    const logo = (item.logo || "").trim();
+    if (!logo) return { success: false, error: `请为「${name}」上传 logo` };
+    if (!isIconFilename(logo)) return { success: false, error: "logo 文件名不合法" };
+    cleaned.push({ id: item.id, name, url, logo });
+  }
+
+  try {
+    updateConfig({ sponsors: serializeSponsors(cleaned) });
+    revalidatePath("/");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (e) {
+    console.error("保存赞助商失败:", e);
+    return { success: false, error: "保存赞助商失败" };
   }
 }
 
@@ -319,7 +395,7 @@ export async function updateConfigAction(config: Partial<SiteConfig>): Promise<A
   try {
     updateConfig(config);
     revalidatePath("/");
-    revalidatePath("/dash");
+    revalidatePath("/admin");
     return { success: true };
   } catch (e) {
     console.error("保存配置失败:", e);

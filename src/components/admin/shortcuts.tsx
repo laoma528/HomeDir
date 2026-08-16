@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { SiteData } from "@/lib/types";
-import { createShortcutAction, deleteShortcutAction } from "@/app/dash/actions";
+import { createShortcutAction, deleteShortcutAction } from "@/app/admin/actions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

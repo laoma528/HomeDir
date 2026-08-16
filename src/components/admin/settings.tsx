@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { updateConfigAction, uploadIconAction } from "@/app/dash/actions";
+import { updateConfigAction, uploadIconAction } from "@/app/admin/actions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AdminSocial } from "@/components/admin/social";
+import { AdminFriends } from "@/components/admin/friends";
+import { AdminSponsors } from "@/components/admin/sponsors";
 import { getIconUrl } from "@/lib/icons";
 import { Loader2, Save, Upload, X, Terminal } from "lucide-react";
 
@@ -85,7 +87,7 @@ function ImageField({
   );
 }
 
-export function AdminSettings({ config }: { config: { site_name: string; site_description: string; footer_text: string; auto_detect_network: string; social_links: string; site_logo: string; site_icon: string } }) {
+export function AdminSettings({ config }: { config: { site_name: string; site_description: string; footer_text: string; auto_detect_network: string; social_links: string; friend_links: string; sponsors: string; site_logo: string; site_icon: string } }) {
   const [form, setForm] = useState({
     site_name: config.site_name,
     site_description: config.site_description,
@@ -173,6 +175,10 @@ export function AdminSettings({ config }: { config: { site_name: string; site_de
       </div>
 
       <AdminSocial value={config.social_links} />
+
+      <AdminFriends value={config.friend_links} />
+
+      <AdminSponsors value={config.sponsors} />
 
       <div className="rounded-lg border bg-card p-4">
         <div className="mb-4 text-sm font-medium">功能配置</div>

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  if (!hasPassword() || !(await isAuthenticated())) redirect("/dash/login");
+  if (!hasPassword() || !(await isAuthenticated())) redirect("/admin/login");
 
   const { sites, categories, config } = getSites();
   const shortcuts = getAllShortcuts().map((s) => ({ id: s.id, key: s.key, site_id: s.site_id }));
@@ -28,6 +28,8 @@ export default async function AdminPage() {
     footer_text: config.footer_text,
     auto_detect_network: config.auto_detect_network,
     social_links: config.social_links,
+    friend_links: config.friend_links,
+    sponsors: config.sponsors,
     site_logo: config.site_logo,
     site_icon: config.site_icon,
   };

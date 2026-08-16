@@ -3,6 +3,7 @@ import { getSites } from "@/lib/sites";
 import { getIconUrl } from "@/lib/icons";
 import { HomePage } from "@/components/home-page";
 import { SocialLinks } from "@/components/social-links";
+import { FooterSections } from "@/components/footer-sections";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default async function Page() {
 
       {/* 底部 */}
       <footer className="mt-auto flex flex-col items-center gap-4 pb-4 pt-8">
+        <FooterSections friendLinks={config.friend_links} sponsors={config.sponsors} />
         {config.footer_text && (
           <p className="text-[11px] text-muted-foreground/60 [&_a]:no-underline [&_a]:hover:text-muted-foreground" dangerouslySetInnerHTML={{ __html: config.footer_text }} />
         )}

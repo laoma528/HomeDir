@@ -12,7 +12,7 @@ UI strings, comments, and commit messages are in Chinese. Match that when adding
 
 ```bash
 pnpm install          # pnpm@9.15.9 is the pinned package manager
-pnpm dev              # http://localhost:3000 (admin at /dash)
+pnpm dev              # http://localhost:3000 (admin at /admin)
 pnpm build            # next build, output: "standalone"
 pnpm start
 pnpm lint             # BROKEN — see below
@@ -40,13 +40,13 @@ Row shape vs. client shape differ deliberately: DB rows use flat `url_internal` 
 
 `src/lib/auth.ts` and `src/lib/sites.ts` are marked `import "server-only"`. `db.ts` is not, but it's Node-only in practice — never import it from a `"use client"` file.
 
-Auth is single-password and session-in-config: the SHA-256 password hash and the *current* session token both live in the `config` table, and the token is compared against an `admin_session` cookie ([src/lib/auth.ts](src/lib/auth.ts)). One token at a time, so a new login invalidates the previous session. First visit to `/dash/login` sets up the password when none exists.
+Auth is single-password and session-in-config: the SHA-256 password hash and the *current* session token both live in the `config` table, and the token is compared against an `admin_session` cookie ([src/lib/auth.ts](src/lib/auth.ts)). One token at a time, so a new login invalidates the previous session. First visit to `/admin/login` sets up the password when none exists.
 
-Every mutation is a Server Action in [src/app/dash/actions.ts](src/app/dash/actions.ts), and each one starts with `requireAuth()` then returns the discriminated `ActionResult` union (`{success: true, data?}` | `{success: false, error}`) — never throws to the client. New mutations must follow that shape and end with `revalidatePath("/")` + `revalidatePath("/dash")`. Login/logout actions live separately in [src/app/dash/login/actions.ts](src/app/dash/login/actions.ts) and use the `useActionState` signature (`(prevState, formData)`) plus `redirect()`.
+Every mutation is a Server Action in [src/app/admin/actions.ts](src/app/admin/actions.ts), and each one starts with `requireAuth()` then returns the discriminated `ActionResult` union (`{success: true, data?}` | `{success: false, error}`) — never throws to the client. New mutations must follow that shape and end with `revalidatePath("/")` + `revalidatePath("/admin")`. Login/logout actions live separately in [src/app/admin/login/actions.ts](src/app/admin/login/actions.ts) and use the `useActionState` signature (`(prevState, formData)`) plus `redirect()`.
 
-`/dash/page.tsx` strips `admin_password` and `admin_session` into a `safeConfig` before passing config to the client panel — keep doing that when adding config fields. `safeConfig` is an explicit allowlist, so a new config field that the admin UI must edit has to be added there *and* to the `SafeConfig` type in [src/components/admin-panel.tsx](src/components/admin-panel.tsx).
+`/admin/page.tsx` strips `admin_password` and `admin_session` into a `safeConfig` before passing config to the client panel — keep doing that when adding config fields. `safeConfig` is an explicit allowlist, so a new config field that the admin UI must edit has to be added there *and* to the `SafeConfig` type in [src/components/admin-panel.tsx](src/components/admin-panel.tsx).
 
-Both `/` and `/dash` set `export const dynamic = "force-dynamic"` since they read SQLite per request.
+Both `/` and `/admin` set `export const dynamic = "force-dynamic"` since they read SQLite per request.
 
 ## Icons
 
@@ -55,7 +55,7 @@ Two independent icon systems:
 - **Lucide name** — `site.icon` is a string looked up at runtime in [src/lib/icons.ts](src/lib/icons.ts) `getIcon()`, falling back to `Globe`. `commonIcons` is the admin picker list.
 - **Uploaded/fetched file** — `site.icon_url` is a bare filename in `data/icons/`. [src/lib/icons-fs.ts](src/lib/icons-fs.ts) content-hashes the buffer (md5, 12 chars) and sniffs the extension from magic bytes, so identical images dedupe. Served by [src/app/api/icons/[name]/route.ts](src/app/api/icons/[name]/route.ts) with immutable caching; `path.basename()` guards traversal.
 
-`icon_url` wins over the Lucide icon when both are set. `fetchFaviconAction` tries the HTML `<link rel="icon">`, then `/favicon.ico` and `/apple-touch-icon.png`, then falls back to Google's favicon service — but only for non-private hostnames ([src/app/dash/actions.ts:176](src/app/dash/actions.ts#L176)), so LAN addresses never leak outward.
+`icon_url` wins over the Lucide icon when both are set. `fetchFaviconAction` tries the HTML `<link rel="icon">`, then `/favicon.ico` and `/apple-touch-icon.png`, then falls back to Google's favicon service — but only for non-private hostnames ([src/app/admin/actions.ts:176](src/app/admin/actions.ts#L176)), so LAN addresses never leak outward.
 
 The `site_logo` (header) and `site_icon` (browser favicon) config fields reuse the same store: both hold a bare `data/icons/` filename written by `uploadIconAction`. The browser favicon is emitted **only** from `generateMetadata` in [src/app/layout.tsx](src/app/layout.tsx), falling back to `/icon.svg` in `public/`. Do not add `src/app/icon.*` back — Next's file-based metadata convention outranks `metadata.icons` and would silently pin the favicon, making the setting a no-op.
 
@@ -63,7 +63,20 @@ The `site_logo` (header) and `site_icon` (browser favicon) config fields reuse t
 
 The header's social links are config-driven, not hardcoded. `config.social_links` is a JSON array string; [src/lib/social.ts](src/lib/social.ts) owns the platform registry (label, brand SVG path or Lucide fallback, URL placeholder, prefix) plus `parseSocialLinks()` / `serializeSocialLinks()`. Parsing is defensive — malformed JSON yields `[]` rather than throwing at render.
 
-`saveSocialLinksAction` validates separately from `updateConfigAction` (per-entry URL protocol allowlist, so `javascript:` and friends are rejected server-side; `mailto:` is permitted only for the email platform). Adding a platform means one entry in the registry — [src/components/social-icon.tsx](src/components/social-icon.tsx) and the admin editor pick it up automatically. Because the card has its own action, the basic-settings save path must exclude `social_links` from its payload or it will clobber the card with stale form state.
+`updateSocialLinksAction` validates separately from `updateConfigAction` (per-entry URL protocol allowlist, so `javascript:` and friends are rejected server-side; `mailto:` is permitted only for the email platform). Adding a platform means one entry in the registry — [src/components/social-icon.tsx](src/components/social-icon.tsx) and the admin editor pick it up automatically. Because the card has its own action, the basic-settings save path must exclude `social_links` from its payload or it will clobber the card with stale form state.
+
+A platform entry may also carry `scale` (default 1) for optical sizing: simple-icons brand paths are all full-bleed 24×24, but a thin corner-to-corner glyph reads much heavier than an inscribed circle at the same box size. `SocialIcon` implements it by widening the viewBox, so only platforms that declare `scale` are affected — `x` is set to `0.88` for exactly this reason.
+
+## Footer sections
+
+Two more config-driven blocks render above `footer_text`, both owned by [src/lib/footer-links.ts](src/lib/footer-links.ts) and both following the social-card pattern (JSON array string in `config`, defensive parsing, dedicated Server Action):
+
+- `config.friend_links` — `[{id, name, url, desc?}]`, rendered as plain text links.
+- `config.sponsors` — `[{id, name, url, logo}]`, rendered as images. `logo` is a bare `data/icons/` filename written by `uploadIconAction`, same store as `site_logo`; `isIconFilename()` rejects anything that isn't a bare filename before it reaches config.
+
+`updateFriendLinksAction` / `updateSponsorsAction` validate independently of `updateConfigAction` (URL protocol allowlist via `isSafeUrl` from `social.ts`, length caps, `MAX_FRIEND_LINKS` = 30 / `MAX_SPONSORS` = 12). As with the social card, the basic-settings save path must not include these keys or it will clobber them with stale form state.
+
+[src/components/footer-sections.tsx](src/components/footer-sections.tsx) is a Server Component (0 JS) and returns `null` when both lists are empty, so an unconfigured footer renders exactly as before. Admin editors are [src/components/admin/friends.tsx](src/components/admin/friends.tsx) and [src/components/admin/sponsors.tsx](src/components/admin/sponsors.tsx), both mounted in the settings tab.
 
 ## Client-side behavior
 

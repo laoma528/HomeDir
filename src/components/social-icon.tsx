@@ -6,8 +6,16 @@ export function SocialIcon({ platform, className }: { platform: string; classNam
   const p = getPlatform(platform);
 
   if (p?.path) {
+    // 光学缩放：外扩 viewBox 让字形按比例收缩，居中不变
+    const scale = p.scale ?? 1;
+    const pad = (24 / scale - 24) / 2;
     return (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <svg
+        className={className}
+        viewBox={`${-pad} ${-pad} ${24 / scale} ${24 / scale}`}
+        fill="currentColor"
+        aria-hidden="true"
+      >
         <path d={p.path} />
       </svg>
     );

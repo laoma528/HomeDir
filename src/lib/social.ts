@@ -17,6 +17,12 @@ export interface SocialPlatform {
   lucide?: string;
   /** 地址输入框的占位提示 */
   placeholder?: string;
+  /**
+   * 光学缩放系数，默认 1。
+   * 品牌 path 都是满幅 24×24，但圆形字形四角留白、对角字形（如 X）撑满四角，
+   * 同框同高时后者视重明显偏大。给这类图标设 0.88 左右可与圆形图标看齐。
+   */
+  scale?: number;
 }
 
 export interface SocialLink {
@@ -102,6 +108,7 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
     key: "x",
     label: "X",
     placeholder: "https://x.com/username",
+    scale: 0.88,
     path: "M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z",
   },
   {

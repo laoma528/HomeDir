@@ -224,7 +224,7 @@ export function HomePage({
         <div className="flex items-center justify-center rounded-2xl border border-dashed py-24">
           <span className="text-sm text-muted-foreground">
             暂无站点 ·{" "}
-            <Link href="/dash" className="underline underline-offset-4 hover:text-foreground">
+            <Link href="/admin" className="underline underline-offset-4 hover:text-foreground">
               去后台添加
             </Link>
           </span>

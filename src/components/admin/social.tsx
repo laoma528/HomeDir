@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { updateSocialLinksAction } from "@/app/dash/actions";
+import { updateSocialLinksAction } from "@/app/admin/actions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

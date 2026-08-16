@@ -66,7 +66,7 @@ Docker 镜像里装了 `tzdata` 才设的 `TZ=Asia/Shanghai`。Alpine 用的 mus
 src/
 ├── app/              # 页面路由
 │   ├── page.tsx      # 首页
-│   ├── dash/         # 后台管理
+│   ├── admin/        # 后台管理
 │   └── api/          # API 路由
 ├── components/       # 组件
 │   ├── admin/        # 后台管理组件
@@ -105,7 +105,7 @@ services:
 docker compose up -d --build
 ```
 
-启动后访问 `http://localhost:4027/dash` 设置管理密码。想用官方镜像的话，把 `build` 换成 `image: 52lxcloud/homedir:latest`，但这样就没有上面那些改动了。
+启动后访问 `http://localhost:4027/admin` 设置管理密码。想用官方镜像的话，把 `build` 换成 `image: 52lxcloud/homedir:latest`，但这样就没有上面那些改动了。
 
 ### 本地开发
 
@@ -114,7 +114,7 @@ pnpm install
 pnpm dev
 ```
 
-访问 `http://localhost:3000/dash` 进入后台。数据保存在 `data/` 目录。
+访问 `http://localhost:3000/admin` 进入后台。数据保存在 `data/` 目录。
 
 ---
 
