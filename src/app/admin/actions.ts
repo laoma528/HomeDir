@@ -392,6 +392,18 @@ export async function updateConfigAction(config: Partial<SiteConfig>): Promise<A
   if (authErr) return authErr;
   if (config.site_name !== undefined && !config.site_name.trim()) return { success: false, error: "站点名称不能为空" };
   if (config.site_description !== undefined && !config.site_description.trim()) return { success: false, error: "站点描述不能为空" };
+  if (config.outbound_utm_enabled !== undefined && !["true", "false"].includes(config.outbound_utm_enabled)) {
+    return { success: false, error: "来源参数开关无效" };
+  }
+  if (config.outbound_utm_source !== undefined) {
+    const source = config.outbound_utm_source.trim();
+    if (source.length > 100) return { success: false, error: "来源标识不能超过 100 个字符" };
+    if (/[\u0000-\u001f\u007f]/.test(source)) return { success: false, error: "来源标识包含无效字符" };
+    config = { ...config, outbound_utm_source: source };
+  }
+  if (config.outbound_utm_enabled === "true" && !config.outbound_utm_source?.trim()) {
+    return { success: false, error: "开启来源参数前请填写来源标识" };
+  }
   try {
     updateConfig(config);
     revalidatePath("/");

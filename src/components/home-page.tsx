@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import NumberFlow from "@number-flow/react";
+import { getSiteTargetUrl, type OutboundTrackingConfig } from "@/lib/outbound-url";
 
 function getGreeting(hour: number) {
   if (hour < 6) return "夜深了";
@@ -160,11 +161,13 @@ export function HomePage({
   categories,
   shortcuts,
   autoDetectNetwork,
+  outboundTracking,
 }: {
   sites: SiteData[];
   categories: string[];
   shortcuts: ShortcutConfig[];
   autoDetectNetwork: boolean;
+  outboundTracking: OutboundTrackingConfig;
 }) {
   const [active, setActive] = useState(ALL);
   const [isInternal, setIsInternal] = useState(false);
@@ -190,8 +193,8 @@ export function HomePage({
 
   return (
     <>
-      <SearchDialog sites={sites} categories={categories} isInternal={isInternal} open={searchOpen} onOpenChange={setSearchOpen} />
-      <ShortcutHints sites={sites} isInternal={isInternal} onSearch={() => setSearchOpen(true)} shortcuts={shortcuts} />
+      <SearchDialog sites={sites} categories={categories} isInternal={isInternal} outboundTracking={outboundTracking} open={searchOpen} onOpenChange={setSearchOpen} />
+      <ShortcutHints sites={sites} isInternal={isInternal} outboundTracking={outboundTracking} onSearch={() => setSearchOpen(true)} shortcuts={shortcuts} />
 
       {/* 工具栏 */}
       <div className="mb-8 flex items-center justify-between">
@@ -233,7 +236,7 @@ export function HomePage({
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           {filtered.map((site) => {
             const Icon = getIcon(site.icon);
-            const url = (isInternal ? site.url.internal : site.url.external) || site.url.internal || site.url.external;
+            const url = getSiteTargetUrl(site, isInternal, outboundTracking);
             return (
               <a
                 key={site.id}

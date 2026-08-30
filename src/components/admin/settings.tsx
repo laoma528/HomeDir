@@ -87,16 +87,19 @@ function ImageField({
   );
 }
 
-export function AdminSettings({ config }: { config: { site_name: string; site_description: string; footer_text: string; auto_detect_network: string; social_links: string; friend_links: string; sponsors: string; site_logo: string; site_icon: string } }) {
+export function AdminSettings({ config }: { config: { site_name: string; site_description: string; footer_text: string; auto_detect_network: string; outbound_utm_enabled: string; outbound_utm_source: string; social_links: string; friend_links: string; sponsors: string; site_logo: string; site_icon: string } }) {
   const [form, setForm] = useState({
     site_name: config.site_name,
     site_description: config.site_description,
     footer_text: config.footer_text,
     auto_detect_network: config.auto_detect_network,
+    outbound_utm_enabled: config.outbound_utm_enabled,
+    outbound_utm_source: config.outbound_utm_source,
     site_logo: config.site_logo,
     site_icon: config.site_icon,
   });
   const [saving, setSaving] = useState(false);
+  const [savingTracking, setSavingTracking] = useState(false);
 
   const handleSave = useCallback(async () => {
     if (!form.site_name.trim()) { toast.error("站点名称不能为空"); return; }
@@ -114,6 +117,24 @@ export function AdminSettings({ config }: { config: { site_name: string; site_de
       toast.success("配置已保存");
     } finally { setSaving(false); }
   }, [form]);
+
+  const handleTrackingSave = useCallback(async () => {
+    const source = form.outbound_utm_source.trim();
+    if (form.outbound_utm_enabled === "true" && !source) {
+      toast.error("开启来源参数前请填写来源标识");
+      return;
+    }
+    setSavingTracking(true);
+    try {
+      const result = await updateConfigAction({
+        outbound_utm_enabled: form.outbound_utm_enabled,
+        outbound_utm_source: source,
+      });
+      if (!result.success) { toast.error(result.error); return; }
+      setForm((p) => ({ ...p, outbound_utm_source: source }));
+      toast.success("来源设置已保存");
+    } finally { setSavingTracking(false); }
+  }, [form.outbound_utm_enabled, form.outbound_utm_source]);
 
   return (
     <div className="space-y-6">
@@ -198,6 +219,41 @@ export function AdminSettings({ config }: { config: { site_name: string; site_de
                 else toast.error(result.error);
               }}
             />
+          </div>
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <Label htmlFor="cfg_utm_enabled">外网来源参数</Label>
+                <p className="text-[11px] text-muted-foreground">跳转外网时自动添加 UTM，便于目标网站识别来源</p>
+              </div>
+              <Switch
+                id="cfg_utm_enabled"
+                checked={form.outbound_utm_enabled === "true"}
+                onCheckedChange={(v) => setForm((p) => ({ ...p, outbound_utm_enabled: v ? "true" : "false" }))}
+              />
+            </div>
+            <div className="mt-4 grid gap-1.5">
+              <Label htmlFor="cfg_utm_source">来源标识</Label>
+              <Input
+                id="cfg_utm_source"
+                value={form.outbound_utm_source}
+                onChange={(e) => setForm((p) => ({ ...p, outbound_utm_source: e.target.value }))}
+                placeholder="例如 nav.example.com"
+                maxLength={100}
+                disabled={form.outbound_utm_enabled !== "true"}
+              />
+              <p className="break-all text-[11px] text-muted-foreground">
+                {form.outbound_utm_enabled === "true" && form.outbound_utm_source.trim()
+                  ? `跳转示例：https://example.com/?utm_source=${encodeURIComponent(form.outbound_utm_source.trim())}&utm_medium=referral`
+                  : "只影响外网地址，不修改后台保存的原始链接"}
+              </p>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" variant="outline" onClick={handleTrackingSave} disabled={savingTracking}>
+                {savingTracking ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                保存来源设置
+              </Button>
+            </div>
           </div>
         </div>
       </div>

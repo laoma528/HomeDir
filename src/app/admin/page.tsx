@@ -27,6 +27,8 @@ export default async function AdminPage() {
     site_description: config.site_description,
     footer_text: config.footer_text,
     auto_detect_network: config.auto_detect_network,
+    outbound_utm_enabled: config.outbound_utm_enabled,
+    outbound_utm_source: config.outbound_utm_source,
     social_links: config.social_links,
     friend_links: config.friend_links,
     sponsors: config.sponsors,

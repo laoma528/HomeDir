@@ -116,6 +116,10 @@ export interface SiteConfig {
   site_description: string;
   footer_text: string;
   auto_detect_network: string;
+  /** 是否为外网跳转追加 UTM 来源参数 */
+  outbound_utm_enabled: string;
+  /** UTM 来源标识，例如 nav.example.com */
+  outbound_utm_source: string;
   /** 社交名片链接，JSON 数组字符串，见 lib/social.ts */
   social_links: string;
   /** 页脚友情链接，JSON 数组字符串，见 lib/footer-links.ts */
@@ -137,6 +141,8 @@ const defaultConfig: SiteConfig = {
   site_description: "快速访问内外网服务的导航中心",
   footer_text: "© 2026 Lxcloud · Powered by <a href=\"https://github.com/52Lxcloud/HomeDir\">HomeDir</a>",
   auto_detect_network: "false",
+  outbound_utm_enabled: "false",
+  outbound_utm_source: "",
   social_links: "[]",
   friend_links: "[]",
   sponsors: "[]",
@@ -156,6 +162,8 @@ export function getConfig(): SiteConfig {
     site_description: map.get("site_description") || defaultConfig.site_description,
     footer_text: map.get("footer_text") || defaultConfig.footer_text,
     auto_detect_network: map.get("auto_detect_network") ?? defaultConfig.auto_detect_network,
+    outbound_utm_enabled: map.get("outbound_utm_enabled") ?? defaultConfig.outbound_utm_enabled,
+    outbound_utm_source: map.get("outbound_utm_source") ?? defaultConfig.outbound_utm_source,
     social_links: map.get("social_links") ?? defaultConfig.social_links,
     friend_links: map.get("friend_links") ?? defaultConfig.friend_links,
     sponsors: map.get("sponsors") ?? defaultConfig.sponsors,

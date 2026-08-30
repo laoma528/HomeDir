@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { getIcon, getIconUrl } from "@/lib/icons";
 import type { SiteData } from "@/lib/types";
 import { Search } from "lucide-react";
+import { getSiteTargetUrl, type OutboundTrackingConfig } from "@/lib/outbound-url";
 import {
   CommandDialog,
   CommandEmpty,
@@ -17,12 +18,14 @@ export function SearchDialog({
   sites,
   categories,
   isInternal,
+  outboundTracking,
   open,
   onOpenChange,
 }: {
   sites: SiteData[];
   categories: string[];
   isInternal: boolean;
+  outboundTracking: OutboundTrackingConfig;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -48,11 +51,11 @@ export function SearchDialog({
 
   const handleSelect = useCallback(
     (site: SiteData) => {
-      const url = (isInternal ? site.url.internal : site.url.external) || site.url.internal || site.url.external;
+      const url = getSiteTargetUrl(site, isInternal, outboundTracking);
       window.open(url, "_blank", "noopener");
       onOpenChange(false);
     },
-    [isInternal, onOpenChange]
+    [isInternal, outboundTracking, onOpenChange]
   );
 
   return (
@@ -69,7 +72,7 @@ export function SearchDialog({
           <CommandGroup key={cat} heading={cat}>
             {items.map((site) => {
               const Icon = getIcon(site.icon);
-              const url = (isInternal ? site.url.internal : site.url.external) || site.url.internal || site.url.external;
+              const url = getSiteTargetUrl(site, isInternal, outboundTracking);
               let hostname: string;
               try { hostname = new URL(url).hostname; } catch { hostname = url; }
               return (

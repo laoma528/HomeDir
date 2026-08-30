@@ -26,7 +26,16 @@ export default async function Page() {
 
       {/* 交互区域 — Client Component */}
       <div className="flex-1">
-        <HomePage sites={sites} categories={categories} shortcuts={shortcuts} autoDetectNetwork={config.auto_detect_network === "true"} />
+        <HomePage
+          sites={sites}
+          categories={categories}
+          shortcuts={shortcuts}
+          autoDetectNetwork={config.auto_detect_network === "true"}
+          outboundTracking={{
+            enabled: config.outbound_utm_enabled === "true",
+            source: config.outbound_utm_source,
+          }}
+        />
       </div>
 
       {/* 底部 */}

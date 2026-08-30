@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import type { SiteData, ShortcutConfig } from "@/lib/types";
+import { getSiteTargetUrl, type OutboundTrackingConfig } from "@/lib/outbound-url";
 
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
 const MOD = isMac ? "⌘" : "Ctrl";
@@ -9,19 +10,20 @@ const MOD = isMac ? "⌘" : "Ctrl";
 export function ShortcutHints({
   sites,
   isInternal,
+  outboundTracking,
   onSearch,
   shortcuts: shortcutConfigs,
 }: {
   sites: SiteData[];
   isInternal: boolean;
+  outboundTracking: OutboundTrackingConfig;
   onSearch: () => void;
   shortcuts: ShortcutConfig[];
 }) {
   const [show, setShow] = useState(false);
 
   const shortcuts = useMemo(() => {
-    const getUrl = (s: SiteData) =>
-      (isInternal ? s.url.internal : s.url.external) || s.url.internal || s.url.external;
+    const getUrl = (s: SiteData) => getSiteTargetUrl(s, isInternal, outboundTracking);
 
     const list: { key: string; label: string; run: () => void }[] = [
       { key: "K", label: "搜索", run: onSearch },
@@ -33,7 +35,7 @@ export function ShortcutHints({
     }
 
     return list;
-  }, [sites, isInternal, onSearch, shortcutConfigs]);
+  }, [sites, isInternal, outboundTracking, onSearch, shortcutConfigs]);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
