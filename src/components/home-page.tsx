@@ -233,7 +233,7 @@ export function HomePage({
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <div data-nosnippet className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           {filtered.map((site) => {
             const Icon = getIcon(site.icon);
             const url = getSiteTargetUrl(site, isInternal, outboundTracking);
