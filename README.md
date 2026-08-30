@@ -12,7 +12,7 @@
 
 ## 这个 Fork 多了什么
 
-基于 [52Lxcloud/HomeDir](https://github.com/52Lxcloud/HomeDir) v1.1.0，自己长期用下来补的七件事。
+基于 [52Lxcloud/HomeDir](https://github.com/52Lxcloud/HomeDir) v1.1.0，自己长期用下来补的八件事。
 
 **社交名片。** 页头的社交图标全部后台可配，内置 19 个平台：GitHub、Telegram、X、QQ 群、微信、哔哩哔哩、知乎、微博、豆瓣、YouTube、Discord、GitLab、Mastodon、Bluesky、Reddit，再加邮箱、RSS、博客和自定义链接。原版这里写死指向作者仓库，改不了。
 
@@ -26,6 +26,8 @@
 
 **外网跳转可以带来源标识。** 后台开启后，首页卡片、搜索结果和键盘快捷键会给外网地址自动加上 `utm_source` 和 `utm_medium=referral`。内网地址不处理，后台保存的原始链接也不会变。
 
+**Google 搜索摘要不再被卡片列表刷屏。** 首页站名用了明确的主标题标签，后台填写的站点描述仍写进页面元数据，但不会挤在首页标题下面。资源卡片照常被索引，只是不再拿来拼搜索结果里的摘要。
+
 **Docker 开箱即用。** compose 从本地源码构建，时区已经是上海，文件顶部附了一份命令速查。
 
 <details>
@@ -38,6 +40,8 @@
 Logo 与 favicon 复用了原有的 `data/icons/` 存储和内容哈希去重，分别回落到 Terminal 图标和 `public/icon.svg`。
 
 来源标识保存在 config 表的 `outbound_utm_enabled` 和 `outbound_utm_source` 两个键里。跳转时统一经过 `src/lib/outbound-url.ts` 生成地址；原链接已有 UTM 参数时不会覆盖，外网地址缺失并回落到内网地址时也不会误加。
+
+首页站名使用 `h1`，站点描述由 `generateMetadata()` 输出为 `meta description`。资源卡片网格带有 `data-nosnippet`，Google 仍可读取卡片名称和链接，但不会用这块文字生成摘要；搜索结果最终显示什么仍由 Google 决定。
 
 Docker 镜像里装了 `tzdata` 才设的 `TZ=Asia/Shanghai`。Alpine 用的 musl 不自带时区数据库，光设 TZ 不生效，容器会一直停在 UTC。另外 standalone 构建产物不包含 `public/`，补了一行 COPY，否则默认 favicon 在容器里是 404，本地开发时看不出来。
 
