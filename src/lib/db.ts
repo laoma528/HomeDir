@@ -132,6 +132,8 @@ export interface SiteConfig {
   site_logo: string;
   /** 浏览器标签页图标 — data/icons/ 下的文件名，留空则用 Next 默认 favicon */
   site_icon: string;
+  /** Google Analytics 4 测量 ID，G- 后接字母数字，留空则不启用 */
+  ga_measurement_id: string;
   admin_password: string;
   admin_session: string;
 }
@@ -149,6 +151,7 @@ const defaultConfig: SiteConfig = {
   category_order: "[]",
   site_logo: "",
   site_icon: "",
+  ga_measurement_id: "",
   admin_password: "",
   admin_session: "",
 };
@@ -170,6 +173,7 @@ export function getConfig(): SiteConfig {
     category_order: map.get("category_order") ?? defaultConfig.category_order,
     site_logo: map.get("site_logo") ?? defaultConfig.site_logo,
     site_icon: map.get("site_icon") ?? defaultConfig.site_icon,
+    ga_measurement_id: map.get("ga_measurement_id") ?? defaultConfig.ga_measurement_id,
     admin_password: map.get("admin_password") || "",
     admin_session: map.get("admin_session") || "",
   };

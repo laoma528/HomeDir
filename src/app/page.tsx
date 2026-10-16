@@ -1,4 +1,5 @@
 import { Terminal } from "lucide-react";
+import Script from "next/script";
 import { getSites } from "@/lib/sites";
 import { getIconUrl } from "@/lib/icons";
 import { HomePage } from "@/components/home-page";
@@ -7,11 +8,31 @@ import { FooterSections } from "@/components/footer-sections";
 
 export const dynamic = "force-dynamic";
 
+// GA4 测量 ID 格式校验（本项目约束：G- 后跟字母数字，总长 ≤64）
+const GA_ID_RE = /^G-[A-Z0-9]+$/;
+function isValidGaId(id: string): boolean {
+  return GA_ID_RE.test(id) && id.length <= 64;
+}
+
 export default async function Page() {
   const { sites, categories, config, shortcuts } = getSites();
+  const gaId = isValidGaId(config.ga_measurement_id) ? config.ga_measurement_id : null;
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 pt-8 sm:px-6 lg:px-8">
+      {/* Google Analytics — 仅统计首页，ID 无效时不注入 */}
+      {gaId && (
+        <>
+          <Script
+            id="ga-script"
+            strategy="afterInteractive"
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          />
+          <Script id="ga-init" strategy="afterInteractive">
+            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
+          </Script>
+        </>
+      )}
       {/* 标题 — Server Component，0 JS */}
       <header className="mb-8 flex items-center gap-2.5">
         {config.site_logo ? (

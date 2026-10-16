@@ -23,7 +23,9 @@ export function NetworkToggle({
     <Button
       variant="ghost"
       size="sm"
-      className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+      className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+      title={isInternal ? "切换到外网模式" : "切换到内网模式"}
+      aria-label={isInternal ? "切换到外网模式" : "切换到内网模式"}
       onClick={toggle}
     >
       {isInternal ? <Server className="size-3.5" /> : <Globe className="size-3.5" />}

@@ -34,6 +34,7 @@ export default async function AdminPage() {
     sponsors: config.sponsors,
     site_logo: config.site_logo,
     site_icon: config.site_icon,
+    ga_measurement_id: config.ga_measurement_id,
   };
 
   return (

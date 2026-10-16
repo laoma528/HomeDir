@@ -404,6 +404,13 @@ export async function updateConfigAction(config: Partial<SiteConfig>): Promise<A
   if (config.outbound_utm_enabled === "true" && !config.outbound_utm_source?.trim()) {
     return { success: false, error: "开启来源参数前请填写来源标识" };
   }
+  if (config.ga_measurement_id !== undefined) {
+    const gid = config.ga_measurement_id.trim().toUpperCase();
+    if (gid !== "" && (!/^G-[A-Z0-9]+$/.test(gid) || gid.length > 64)) {
+      return { success: false, error: "GA 测量 ID 格式无效，应为 G- 开头的字母数字组合" };
+    }
+    config = { ...config, ga_measurement_id: gid };
+  }
   try {
     updateConfig(config);
     revalidatePath("/");

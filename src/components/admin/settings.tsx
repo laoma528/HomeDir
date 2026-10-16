@@ -87,7 +87,7 @@ function ImageField({
   );
 }
 
-export function AdminSettings({ config }: { config: { site_name: string; site_description: string; footer_text: string; auto_detect_network: string; outbound_utm_enabled: string; outbound_utm_source: string; social_links: string; friend_links: string; sponsors: string; site_logo: string; site_icon: string } }) {
+export function AdminSettings({ config }: { config: { site_name: string; site_description: string; footer_text: string; auto_detect_network: string; outbound_utm_enabled: string; outbound_utm_source: string; social_links: string; friend_links: string; sponsors: string; site_logo: string; site_icon: string; ga_measurement_id: string } }) {
   const [form, setForm] = useState({
     site_name: config.site_name,
     site_description: config.site_description,
@@ -97,9 +97,11 @@ export function AdminSettings({ config }: { config: { site_name: string; site_de
     outbound_utm_source: config.outbound_utm_source,
     site_logo: config.site_logo,
     site_icon: config.site_icon,
+    ga_measurement_id: config.ga_measurement_id,
   });
   const [saving, setSaving] = useState(false);
   const [savingTracking, setSavingTracking] = useState(false);
+  const [savingGA, setSavingGA] = useState(false);
 
   const handleSave = useCallback(async () => {
     if (!form.site_name.trim()) { toast.error("站点名称不能为空"); return; }
@@ -135,6 +137,18 @@ export function AdminSettings({ config }: { config: { site_name: string; site_de
       toast.success("来源设置已保存");
     } finally { setSavingTracking(false); }
   }, [form.outbound_utm_enabled, form.outbound_utm_source]);
+
+  const handleGASave = useCallback(async () => {
+    setSavingGA(true);
+    try {
+      const result = await updateConfigAction({ ga_measurement_id: form.ga_measurement_id });
+      if (!result.success) { toast.error(result.error); return; }
+      // 回显后端归一化后的大写 ID
+      const normalized = form.ga_measurement_id.trim().toUpperCase();
+      setForm((p) => ({ ...p, ga_measurement_id: normalized }));
+      toast.success("Google Analytics 设置已保存");
+    } finally { setSavingGA(false); }
+  }, [form.ga_measurement_id]);
 
   return (
     <div className="space-y-6">
@@ -252,6 +266,25 @@ export function AdminSettings({ config }: { config: { site_name: string; site_de
               <Button size="sm" variant="outline" onClick={handleTrackingSave} disabled={savingTracking}>
                 {savingTracking ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
                 保存来源设置
+              </Button>
+            </div>
+          </div>
+          <div className="border-t pt-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="cfg_ga_id">Google Analytics 测量 ID</Label>
+              <Input
+                id="cfg_ga_id"
+                value={form.ga_measurement_id}
+                onChange={(e) => setForm((p) => ({ ...p, ga_measurement_id: e.target.value }))}
+                placeholder="G-XXXXXXXXXX"
+                maxLength={64}
+              />
+              <p className="text-[11px] text-muted-foreground">留空则不启用，仅统计首页访问</p>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" variant="outline" onClick={handleGASave} disabled={savingGA}>
+                {savingGA ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                保存 GA 设置
               </Button>
             </div>
           </div>

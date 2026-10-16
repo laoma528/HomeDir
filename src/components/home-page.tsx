@@ -7,7 +7,6 @@ import { SearchDialog } from "@/components/search-dialog";
 import { ShortcutHints } from "@/components/shortcut-hints";
 import { NetworkToggle } from "@/components/network-toggle";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Search } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import NumberFlow from "@number-flow/react";
@@ -48,8 +47,8 @@ function Clock() {
         </>
       ) : (
         <>
-          <div className="h-4 w-16 animate-pulse rounded bg-muted-foreground/10" />
-          <div className="mt-1 h-4 w-14 animate-pulse rounded bg-muted-foreground/10" />
+          <div className="h-4 w-16 animate-pulse rounded bg-muted-foreground/10 motion-reduce:animate-none" />
+          <div className="mt-1 h-4 w-14 animate-pulse rounded bg-muted-foreground/10 motion-reduce:animate-none" />
         </>
       )}
     </div>
@@ -106,7 +105,7 @@ function CategoryTabs({
         {mounted && (
           <div
             ref={indicatorRef}
-            className="pointer-events-none absolute rounded-lg bg-foreground transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+            className="pointer-events-none absolute rounded-lg bg-foreground transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none"
           />
         )}
 
@@ -116,7 +115,7 @@ function CategoryTabs({
             ref={(el) => {
               if (el) tabRefs.current.set(cat, el);
             }}
-            className={`relative z-10 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
+            className={`relative z-10 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 ${
               active === cat
                 ? mounted
                   ? "text-background"
@@ -124,6 +123,7 @@ function CategoryTabs({
                 : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
             }`}
             onClick={() => onSelect(cat)}
+            aria-pressed={active === cat}
           >
             {cat === ALL ? "全部" : cat}
           </button>
@@ -203,7 +203,8 @@ export function HomePage({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-muted-foreground hover:text-foreground"
+            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+            aria-label="搜索"
             onClick={() => setSearchOpen(true)}
           >
             <Search className="size-3.5" />
@@ -227,9 +228,9 @@ export function HomePage({
         <div className="flex items-center justify-center rounded-2xl border border-dashed py-24">
           <span className="text-sm text-muted-foreground">
             暂无站点 ·{" "}
-            <Link href="/admin" className="underline underline-offset-4 hover:text-foreground">
+            <a href="/admin" className="underline underline-offset-4 hover:text-foreground">
               去后台添加
-            </Link>
+            </a>
           </span>
         </div>
       ) : (
